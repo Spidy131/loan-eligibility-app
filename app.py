@@ -74,7 +74,7 @@ def encode_inputs():
 if st.button("Check Eligibility"):
 
     credit_val = 1 if credit_history == "Good" else 0
-    is_eligible, reason = rule_based_check(applicant_income, loan_amount, credit_val)
+    is_eligible, reason = rule_based_check(applicant_income,  loan_amount_thousands, credit_val)
 
     # Show rule result only
     if is_eligible:

@@ -59,7 +59,7 @@ def encode_inputs():
         1 if gender == "Male" else 0,
         1 if married == "Yes" else 0,
         int(dependents.replace("+","")),
-        1 if education == "Graduate" else 0,
+        0 if education == "Graduate" else 1,   # ✅ Fixed
         1 if self_employed == "Yes" else 0,
         applicant_income,
         coapplicant_income,
@@ -80,8 +80,13 @@ if st.button("Check Eligibility"):
 
     else:
         input_data = np.array(encode_inputs()).reshape(1, -1)
+        st.write("Encoded Input:", input_data)
         input_scaled = scaler.transform(input_data)
+        st.write("Scaled Input:", input_scaled)
         prediction = model.predict(input_scaled)
+        prob = model.predict_proba(input_scaled)
+
+        st.write("Prediction Probability:", prob)
 
         if prediction[0] == 1:
             st.success("✅ Loan Approved (ML Decision)")

@@ -21,7 +21,7 @@ property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
 applicant_income = st.number_input("Applicant Income (Monthly ₹)", min_value=0)
 coapplicant_income = st.number_input("Coapplicant Income (Monthly ₹)", min_value=0)
-loan_amount = st.number_input("Loan Amount (in thousands ₹)", min_value=0)
+loan_amount = st.number_input("Loan Amount (₹)", min_value=0)
 loan_term = st.number_input("Loan Term (months)", value=360)
 credit_history = st.selectbox("Credit History", ["Good", "Bad"])
 
@@ -34,7 +34,7 @@ def rule_based_check(income, loan_amt, credit):
     max_loan_multiple = 20
     emi_ratio = 0.4
 
-    loan_rupees = loan_amt * 1000
+    loan_rupees = loan_amt 
     max_loan_allowed = total_income * max_loan_multiple
     estimated_emi = loan_rupees / loan_term
     max_emi_allowed = total_income * emi_ratio

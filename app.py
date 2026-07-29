@@ -127,25 +127,25 @@ if st.button("Check Eligibility"):
 
     st.write("Prediction Probability:", probability)
 
-   if prediction[0] == 1:
+if prediction[0] == 1:
 
-        emi = calculate_emi(
-            loan_amount,
-            interest_rate,
-            loan_term
-        )
-    
-        total_payment = emi * loan_term
-        total_interest = total_payment - loan_amount
-    
-        st.success(
-            f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)"
-        )
-    
-        st.metric("Monthly EMI", f"₹{emi:,.2f}")
-        st.metric("Total Interest", f"₹{total_interest:,.2f}")
-        st.metric("Total Payment", f"₹{total_payment:,.2f}")
-    else:
-        st.error(
-            f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)"
-        )
+            emi = calculate_emi(
+                loan_amount,
+                interest_rate,
+                loan_term
+            )
+        
+            total_payment = emi * loan_term
+            total_interest = total_payment - loan_amount
+        
+            st.success(
+                f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)"
+            )
+        
+            st.metric("Monthly EMI", f"₹{emi:,.2f}")
+            st.metric("Total Interest", f"₹{total_interest:,.2f}")
+            st.metric("Total Payment", f"₹{total_payment:,.2f}")
+else:
+            st.error(
+                f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)"
+            )

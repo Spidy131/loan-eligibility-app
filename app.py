@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Load model & scaler
+# ---------------- LOAD MODEL ----------------
 model = joblib.load("loan_model.pkl")
 scaler = joblib.load("scaler.pkl")
 
@@ -21,69 +21,83 @@ property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
 applicant_income = st.number_input("Applicant Income (Monthly ₹)", min_value=0)
 coapplicant_income = st.number_input("Coapplicant Income (Monthly ₹)", min_value=0)
+
+# User enters amount in Rupees
 loan_amount = st.number_input("Loan Amount (₹)", min_value=0)
+
+# Convert to thousands because the model was trained that way
+loan_amount_thousands = loan_amount / 1000
+
 loan_term = st.number_input("Loan Term (months)", value=360)
+
 credit_history = st.selectbox("Credit History", ["Good", "Bad"])
 
-# ---------------- RULE BASED CHECK ----------------
-def rule_based_check(income, loan_amt, credit):
-    total_income = income + coapplicant_income
 
-    # Basic banking rules
+# ---------------- RULE BASED CHECK ----------------
+def rule_based_check(income, co_income, loan_amt_rupees, credit, term):
+
+    total_income = income + co_income
+
     min_income = 15000
     max_loan_multiple = 20
-    emi_ratio = 0.4
+    emi_ratio = 0.40
 
-    loan_rupees = loan_amt 
-    loan_amount_thousands = loan_amount / 1000
     max_loan_allowed = total_income * max_loan_multiple
-    estimated_emi = loan_rupees / loan_term
+    estimated_emi = loan_amt_rupees / term
     max_emi_allowed = total_income * emi_ratio
 
     if credit == 0:
-        return False, "Bad credit history"
+        return False, "Bad Credit History"
 
     if total_income < min_income:
         return False, "Income below minimum requirement"
 
-    if loan_rupees > max_loan_allowed:
+    if loan_amt_rupees > max_loan_allowed:
         return False, "Loan amount too high compared to income"
 
     if estimated_emi > max_emi_allowed:
-        return False, "EMI exceeds 40% of income"
+        return False, "Estimated EMI exceeds 40% of monthly income"
 
     return True, "Rule-based eligibility passed"
 
+
 # ---------------- ENCODING ----------------
 def encode_inputs():
-    return [
+
+    return [[
         1 if gender == "Male" else 0,
         1 if married == "Yes" else 0,
-        int(dependents.replace("+","")),
-        0 if education == "Graduate" else 1,   # ✅ Fixed
+        int(dependents.replace("+", "")),
+        0 if education == "Graduate" else 1,
         1 if self_employed == "Yes" else 0,
         applicant_income,
         coapplicant_income,
         loan_amount_thousands,
         loan_term,
         1 if credit_history == "Good" else 0,
-        {"Urban":2,"Semiurban":1,"Rural":0}[property_area]
-    ]
+        {"Rural": 0, "Semiurban": 1, "Urban": 2}[property_area]
+    ]]
+
 
 # ---------------- PREDICTION ----------------
 if st.button("Check Eligibility"):
 
     credit_val = 1 if credit_history == "Good" else 0
-    is_eligible, reason = rule_based_check(applicant_income,  loan_amount_thousands, credit_val)
 
-    # Show rule result only
-    if is_eligible:
-        st.info(f"Rule Check: ✅ {reason}")
+    eligible, reason = rule_based_check(
+        applicant_income,
+        coapplicant_income,
+        loan_amount,
+        credit_val,
+        loan_term,
+    )
+
+    if eligible:
+        st.success(f"Rule Check: {reason}")
     else:
-        st.warning(f"Rule Check: ⚠️ {reason}")
+        st.warning(f"Rule Check: {reason}")
 
-    # ML Prediction
-    input_data = np.array(encode_inputs()).reshape(1, -1)
+    input_data = np.array(encode_inputs())
 
     st.write("Encoded Input:", input_data)
 
@@ -95,6 +109,10 @@ if st.button("Check Eligibility"):
     st.write("Prediction Probability:", probability)
 
     if prediction[0] == 1:
-        st.success(f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)")
+        st.success(
+            f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)"
+        )
     else:
-        st.error(f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)")
+        st.error(
+            f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)"
+        )

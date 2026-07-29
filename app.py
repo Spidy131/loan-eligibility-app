@@ -29,28 +29,9 @@ loan_amount = st.number_input("Loan Amount (₹)", min_value=0)
 loan_amount_thousands = loan_amount / 1000
 
 loan_term = st.number_input("Loan Term (months)", value=360)
-interest_rate = st.number_input(
-    "Annual Interest Rate (%)",
-    min_value=1.0,
-    max_value=25.0,
-    value=9.5,
-    step=0.1
-)
 
 credit_history = st.selectbox("Credit History", ["Good", "Bad"])
-def calculate_emi(principal, annual_rate, months):
 
-    monthly_rate = annual_rate / (12 * 100)
-
-    emi = (
-        principal
-        * monthly_rate
-        * (1 + monthly_rate) ** months
-    ) / (
-        (1 + monthly_rate) ** months - 1
-    )
-
-    return emi
 
 # ---------------- RULE BASED CHECK ----------------
 def rule_based_check(income, co_income, loan_amt_rupees, credit, term):
@@ -127,25 +108,11 @@ if st.button("Check Eligibility"):
 
     st.write("Prediction Probability:", probability)
 
-if prediction[0] == 1:
-
-            emi = calculate_emi(
-                loan_amount,
-                interest_rate,
-                loan_term
-            )
-        
-            total_payment = emi * loan_term
-            total_interest = total_payment - loan_amount
-        
-            st.success(
-                f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)"
-            )
-        
-            st.metric("Monthly EMI", f"₹{emi:,.2f}")
-            st.metric("Total Interest", f"₹{total_interest:,.2f}")
-            st.metric("Total Payment", f"₹{total_payment:,.2f}")
-else:
-            st.error(
-                f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)"
-            )
+    if prediction[0] == 1:
+        st.success(
+            f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)"
+        )
+    else:
+        st.error(
+            f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)"
+        )

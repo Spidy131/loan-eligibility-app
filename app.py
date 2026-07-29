@@ -75,20 +75,25 @@ if st.button("Check Eligibility"):
     credit_val = 1 if credit_history == "Good" else 0
     is_eligible, reason = rule_based_check(applicant_income, loan_amount, credit_val)
 
-    if not is_eligible:
-        st.error(f"❌ Loan Rejected (Rule-Based): {reason}")
-
+    # Show rule result only
+    if is_eligible:
+        st.info(f"Rule Check: ✅ {reason}")
     else:
-        input_data = np.array(encode_inputs()).reshape(1, -1)
-        st.write("Encoded Input:", input_data)
-        input_scaled = scaler.transform(input_data)
-        st.write("Scaled Input:", input_scaled)
-        prediction = model.predict(input_scaled)
-        prob = model.predict_proba(input_scaled)
+        st.warning(f"Rule Check: ⚠️ {reason}")
 
-        st.write("Prediction Probability:", prob)
+    # ML Prediction
+    input_data = np.array(encode_inputs()).reshape(1, -1)
 
-        if prediction[0] == 1:
-            st.success("✅ Loan Approved (ML Decision)")
-        else:
-            st.error("❌ Loan Rejected (ML Decision)")
+    st.write("Encoded Input:", input_data)
+
+    input_scaled = scaler.transform(input_data)
+
+    prediction = model.predict(input_scaled)
+    probability = model.predict_proba(input_scaled)
+
+    st.write("Prediction Probability:", probability)
+
+    if prediction[0] == 1:
+        st.success(f"✅ Loan Approved ({probability[0][1]*100:.2f}% confidence)")
+    else:
+        st.error(f"❌ Loan Rejected ({probability[0][0]*100:.2f}% confidence)")

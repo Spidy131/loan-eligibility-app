@@ -35,6 +35,7 @@ def rule_based_check(income, loan_amt, credit):
     emi_ratio = 0.4
 
     loan_rupees = loan_amt 
+    loan_amount_thousands = loan_amount / 1000
     max_loan_allowed = total_income * max_loan_multiple
     estimated_emi = loan_rupees / loan_term
     max_emi_allowed = total_income * emi_ratio
@@ -63,7 +64,7 @@ def encode_inputs():
         1 if self_employed == "Yes" else 0,
         applicant_income,
         coapplicant_income,
-        loan_amount,
+        loan_amount_thousands,
         loan_term,
         1 if credit_history == "Good" else 0,
         {"Urban":2,"Semiurban":1,"Rural":0}[property_area]

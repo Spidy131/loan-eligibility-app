@@ -129,7 +129,7 @@ if st.button("Check Eligibility"):
     st.write("Prediction Probability:", probability)
 
     if prediction[0] == 1:
-            emi = calculate_emi(
+        emi = calculate_emi(
             loan_amount,
             interest_rate,
             loan_term
